@@ -1,3 +1,30 @@
+=begin
+
+  Shattered Heal and Spellup script
+
+   authors: Tykus, Athias
+      game: Gemstone
+      tags: shattered, healing
+   version: 0.1
+  requried: Lich >= 4.6.54
+
+  changelog:
+    0.1 (20-03-03):
+      Initial creation of script based on previously created community script
+
+=end
+
+# Verify this is running in shattered
+unless XMLData.game =~ /^GSF/
+  output = "\n"
+  output.concat "shat_heal_spellup.lic is intended to be used in Gemstone IV: Shattered\n"
+  output.concat "\n"
+  output.concat "Please come and join us in Shattered if you would like to know more!\n"
+  output.concat "\n"
+  respond output
+  exit
+end
+
 settings = CharSettings.to_hash 
 
 @professions  = Hash.new
@@ -17,7 +44,7 @@ if script.vars[1] =~ /^setup$|^options$/i
     window = Gtk::Window.new(Gtk::Window::TOPLEVEL)
     window.set_title  "GSF Heal and Spellup"  
     window.keep_above = true                    
-    window.border_width = 60  
+    window.border_width = 60
     
     vbox = Gtk::VBox.new(false, 0)      
 
@@ -188,9 +215,11 @@ def get_healed
     end
   }
   # Healers are borked, fix yourself
-  Script.run('useherbs')
-  wait_while {running? 'useherbs'}
-  sleep 0.5
+  if XMLData.injuries.any?
+    Script.run('useherbs')
+    wait_while {running? 'useherbs'}
+    sleep 0.5
+  end
 end
 
 def get_spells(person)
@@ -242,12 +271,8 @@ settings.each_pair { |prof,active|
   if active
     @wanted.push(prof.to_s)
   end 
-  
-  
 }
-if Char.name != "Tyrean"
-  get_healed
-end
-cycle_casters
-sleep 10
+
+# Run Main Function
 get_healed
+cycle_casters
